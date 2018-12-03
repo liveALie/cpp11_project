@@ -32,6 +32,7 @@ public:
 
     //Then函数返回的是一个Task对象
     //auto Then(F&& f)->Task<typename std::result_of<F(R)>::type(Args...)>
+    //上一句的函数生命，当R为void时，编译出错，详细原因有待考察。
     template<typename F>
     auto Then(F&& f)->Task<decltype(f(std::declval<R>()))(Args...)>
     {
