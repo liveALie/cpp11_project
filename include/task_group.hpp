@@ -17,7 +17,7 @@ public:
     ~TaskGroup(){}
 
     template<typename R,class = typename std::enable_if<!std::is_same<R,void>::value>::type>
-    R Run(Task<R()>&& task)
+    void Run(Task<R()>&& task)
     {
         group_.emplace(R(),task.Run());
     }
@@ -74,5 +74,27 @@ private:
     multimap<RetVariant,Any> group_;
     vector<std::shared_future<void>> void_group_;
 };
+
+//当所有的task执行完。把所有task的future存起来。
+//range为容器类型，value_type为task类型，return_type？
+template<typename Range>
+extern Task<vector<typename Range::value_type::ReturnType>()> WhenAll(Range& range)
+{
+    typedef typename Range::value_type::ReturnType Return_type;
+    auto task = [&range]{
+        vector<std::shared_future<Return_type>> fv;
+        for(auto& task : range)
+        {
+            fv.emplace_back(task.Run());
+        }
+        vector<Return_type> v;
+        for(auto& item : fv)
+        {
+            v.emplace_back(item.get());
+        }
+        return v;//这是返回的task调用get之后的返回值。
+    };
+    return Task<vector<Return_type>()>(task);//这是whenall的返回值
+}
 
 #endif // _C11TEST_TASK_GROUP_HPP_
