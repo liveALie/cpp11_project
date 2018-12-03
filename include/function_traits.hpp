@@ -20,6 +20,7 @@ struct function_traits<Ret(Args...)>{
     struct args{
         static_assert( I < arity,"index is out of range,index must less than sizeof Args.");
         using type = typename std::tuple_element<I,std::tuple<Args...>>::type;
+        //typedef typename std::tuple_element<I, std::tuple<Args...>>::type type;
     };
 };
 //函数指针
