@@ -152,9 +152,16 @@ void test_task()
     std::cout << r1 << std::endl;
 
     //此处不能用void，原因？？
-    // Task<void()> t1([]{std::cout << "hello world!" << std::endl;});
-    // auto r2 = t1.Run();
-    // r2.get();
+    Task<void()> t1([](){std::cout << "hello world!" << std::endl;});
+    auto r2 = t1.Run();
+    r2.get();
+}
+
+void test_async()
+{
+    auto f = std::async([](){std::cout << "test async!" << std::endl;});
+    std::cout << typeid(decltype(f)).name();
+    f.get();
 }
 
 int main(int argc,char* argv[])
@@ -168,6 +175,7 @@ int main(int argc,char* argv[])
     //test_object_pool();
     test_aspect();
     test_task();
+    test_async();
     std::cout << "test over!" << std::endl;
     return 0;
 }
