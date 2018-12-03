@@ -1,5 +1,7 @@
 #include <iostream>
 #include <functional>
+#include <vector>
+#include <numeric>
 
 #include "singleton.hpp"
 #include "events.hpp"
@@ -15,6 +17,8 @@
 #include "variant.hpp"
 #include "task.hpp"
 #include "task_group.hpp"
+
+using namespace std;
 
 void print(int a,int b)
 {
@@ -165,6 +169,34 @@ void test_async()
     f.get();
 }
 
+void test_taskgroup()
+{
+    TaskGroup g;
+    g.Run([]{return 1;},[]{std::cout << "ok1" << std::endl;},[]{ std::cout << "ok2" << std::endl;});
+    g.Wait();
+}
+
+void print_thread()
+{
+    std::cout << std::this_thread::get_id() << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+}
+
+void test_whenall()
+{
+    vector<Task<int()>> v = {
+        Task<int()>([]{print_thread();std::this_thread::sleep_for(std::chrono::seconds(1));return 1;}),
+        Task<int()>([]{print_thread();return 2;}),
+        Task<int()>([]{print_thread();return 3;}),
+        Task<int()>([]{print_thread();return 4;})
+    };
+
+    std::cout << "when all" << std::endl;
+    WhenAll(v).Then([](vector<int> results){
+        std::cout << "sum:" << accumulate(begin(results),end(results),0) << std::endl;
+    }).Wait();
+}
+
 int main(int argc,char* argv[])
 {
     std::cout << "hello world." << std::endl;
@@ -177,6 +209,8 @@ int main(int argc,char* argv[])
     test_aspect();
     test_task();
     test_async();
+    test_taskgroup();
+    test_whenall();
     std::cout << "test over!" << std::endl;
     return 0;
 }
