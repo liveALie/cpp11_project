@@ -30,9 +30,10 @@ public:
         return std::async(fun_);
     }
 
-    //Then函数返回的是要给Task对象
+    //Then函数返回的是一个Task对象
+    //auto Then(F&& f)->Task<typename std::result_of<F(R)>::type(Args...)>
     template<typename F>
-    auto Then(F&& f)->Task<typename std::result_of<F(R)>::type(Args...)>
+    auto Then(F&& f)->Task<decltype(f(std::declval<R>()))(Args...)>
     {
         typedef typename std::result_of<F(R)>::type Return_type;
         auto func = std::move(fun_);
