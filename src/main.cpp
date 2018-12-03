@@ -14,7 +14,6 @@
 #include "message_bus.hpp"
 #include "task.hpp"
 //#include "task_group.hpp"
-//using namespace Cosmos;
 
 void print(int a,int b)
 {
@@ -152,9 +151,10 @@ void test_task()
         result){std::cout << result << std::endl; return result + 3;}).Get();
     std::cout << r1 << std::endl;
 
-    Task<void()> t1([]{std::cout << "hello world!" << std::endl;});
-    auto r2 = t1.Run();
-    r2.get();
+    //此处不能用void，原因？？
+    // Task<void()> t1([]{std::cout << "hello world!" << std::endl;});
+    // auto r2 = t1.Run();
+    // r2.get();
 }
 
 int main(int argc,char* argv[])
