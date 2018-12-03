@@ -12,8 +12,9 @@
 #include "aspect.hpp"
 #include "ioc_container.hpp"
 #include "message_bus.hpp"
+#include "variant.hpp"
 #include "task.hpp"
-//#include "task_group.hpp"
+#include "task_group.hpp"
 
 void print(int a,int b)
 {
