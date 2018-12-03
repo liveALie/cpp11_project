@@ -30,22 +30,8 @@ public:
         return std::async(fun_);
     }
 
-    template<typename F,class=typename std::enable_if<std::is_same<void,typename std::result_of<R(Args...)>::type>::value>::type>
-    auto Then(F&& f)->Task<typename std::result_of<F()>::type()>
-    {
-        typedef typename std::result_of<F()>::type Return_type;
-        auto func = std::move(fun_);
-        //此为构造Task的入参，Then调用完之后调用Get，获取执行后的结果。
-        return Task<Return_type()>([func,&f](Args... args)
-        {
-            std::future<R> last_future = std::async(func,std::forward<Args>(args)...);
-            last_future.get();
-            return std::async(f).get();
-        });
-    }
-
     //Then函数返回的是要给Task对象
-    template<typename F,class = typename std::enable_if<!std::is_same<void,R>::value>::type>
+    template<typename F>
     auto Then(F&& f)->Task<typename std::result_of<F(R)>::type(Args...)>
     {
         typedef typename std::result_of<F(R)>::type Return_type;
