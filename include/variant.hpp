@@ -8,34 +8,34 @@
 #include <functional>
 #include <utility>
 
-//#include "function_trait.hpp"
+#include "function_traits.hpp"
 
-template <typename T>
-struct function_trait
-	: public function_trait<decltype(&T::operator())>
-{};
-// For generic types, directly use the result of the signature of its 'operator()'
+// template <typename T>
+// struct function_trait
+// 	: public function_trait<decltype(&T::operator())>
+// {};
+// // For generic types, directly use the result of the signature of its 'operator()'
 
-template <typename ClassType, typename ReturnType, typename... Args>
-struct function_trait<ReturnType(ClassType::*)(Args...) const>
-	// we specialize for pointers to member function
-{
-	enum { arity = sizeof...(Args) };
-	// arity is the number of arguments.
+// template <typename ClassType, typename ReturnType, typename... Args>
+// struct function_trait<ReturnType(ClassType::*)(Args...) const>
+// 	// we specialize for pointers to member function
+// {
+// 	enum { arity = sizeof...(Args) };
+// 	// arity is the number of arguments.
 
-	typedef ReturnType result_type;
+// 	typedef ReturnType result_type;
 
-	template <size_t i>
-	struct arg
-	{
-		typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
-		// the i-th argument is equivalent to the i-th tuple element of a tuple
-		// composed of those arguments.
-	};
+// 	template <size_t i>
+// 	struct arg
+// 	{
+// 		typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
+// 		// the i-th argument is equivalent to the i-th tuple element of a tuple
+// 		// composed of those arguments.
+// 	};
 
-	typedef std::function<ReturnType(Args...)> FunType;
-	typedef std::tuple<Args...> ArgTupleType;
-};
+// 	typedef std::function<ReturnType(Args...)> FunType;
+// 	typedef std::tuple<Args...> ArgTupleType;
+// };
 
 //��ȡ��������
 template <size_t arg, size_t... rest>
@@ -264,7 +264,7 @@ public:
 	template<typename F>
 	void Visit(F&& f)
 	{
-        typedef typename std::tuple_element<0, typename function_trait<F>::ArgTupleType>::type T;
+        typedef typename std::tuple_element<0, typename function_traits<F>::ArgTupleType>::type T;
 		//typedef typename function_trait<F>::ArgTupleType;
 		//using T = typename function_trait<F>::(typename arg<0>)::type;
         if (Is<T>())
@@ -276,7 +276,7 @@ public:
 	{
 		//using T = typename function_trait<F>::(typename arg<0>)::type;
         //typedef typename function_trait<F>::arg<0>::type T;
-        typedef typename std::tuple_element<0, typename function_trait<F>::ArgTupleType>::type T;
+        typedef typename std::tuple_element<0, typename function_traits<F>::ArgTupleType>::type T;
 		if (Is<T>())
 			Visit(std::forward<F>(f));
 		else
