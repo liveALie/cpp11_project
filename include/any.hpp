@@ -48,13 +48,13 @@ public:
     template<typename U>
     U& AnyCast()
     {
-        if(!Is<U>)
+        if(!Is<U>())
         {
             std::cout << "can not cast " << type_index_.name() << "to " << typeid(U).name() << std::endl;
             throw std::bad_cast();
         }
         auto derived = dynamic_cast<Derived<U>*>(ptr_.get());
-        return derived->value;
+        return derived->value_;
     }
 
     Any& operator=(const Any& a)
