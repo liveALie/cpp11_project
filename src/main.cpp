@@ -197,6 +197,64 @@ void test_whenall()
     }).Wait();
 }
 
+void test_whenany()
+{
+    vector<Task<int()>> v = {
+        Task<int()>([]{print_thread();std::this_thread::sleep_for(std::chrono::seconds(1));return 1;}),
+        Task<int()>([]{print_thread();return 2;}),
+        Task<int()>([]{print_thread();return 3;}),
+        Task<int()>([]{print_thread();return 4;})
+    };
+
+    std::cout << "when any" << std::endl;
+    WhenAny(v).Then([](const std::pair<int,int>& result){
+        std::cout << "index:" << result.first << " result:" << result.second << std::endl;
+        return result.second;
+    }).Then([](int result){
+        std::cout << "any result:" << result << std::endl;
+    }).Wait();
+    
+}
+
+bool check_prime(int x)
+{
+    for(int i = 2; i < x; ++i)
+    {
+        if(x % i == 0)
+            return false;
+        return true;
+    }
+    return false;
+}
+
+void test_parallelfor()
+{
+    vector<int> v;
+    const int size = 1000;
+    for(int i = 0; i < size; ++i)
+    {
+        v.push_back(i + 1);
+    }
+    auto begin = v.begin();
+    auto end = v.end();
+    ParallelForeach<vector<int>::iterator>(begin,end,check_prime);
+}
+
+void test_parallelsum()
+{
+    vector<int> v;
+    const int size = 100000000;
+    for(int i = 0; i < size; ++i)
+    {
+        v.push_back(i + 1);
+    }
+    int i = 0;
+    auto r = ParallelReduce(v,i,[](const vector<int>::iterator& begin,const vector<int>::iterator& end,int val){
+        return std::accumulate(begin,end,val);
+    });
+    std::cout << "test_parallelsum result:" << r << std::endl;
+}
+
 int main(int argc,char* argv[])
 {
     std::cout << "hello world." << std::endl;
@@ -211,6 +269,9 @@ int main(int argc,char* argv[])
     test_async();
     test_taskgroup();
     test_whenall();
+    test_whenany();
+    test_parallelfor();
+    test_parallelsum();
     std::cout << "test over!" << std::endl;
     return 0;
 }
