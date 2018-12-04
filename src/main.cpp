@@ -255,6 +255,33 @@ void test_parallelsum()
     std::cout << "test_parallelsum result:" << r << std::endl;
 }
 
+struct TestClass{
+public:
+    TestClass(int& val,int* v):val_(val),v_(v){};
+    void operator()()const{
+        std::cout << "testclass val_:" << ++val_ << std::endl;
+        std::cout << "testclass v_:" << ++*v_ << std::endl;
+    }
+private:
+    int& val_;
+    int* v_;
+};
+
+void test_lambda()
+{
+    int i = 1;
+    int j = 3;
+    int k = 5;
+    auto f = [i,&j](){ 
+        ++j;
+        std::cout << "i:" << i << " j:" << j << std::endl; 
+    };
+    f();
+
+    TestClass tc(i,&k);
+    tc();
+}
+
 int main(int argc,char* argv[])
 {
     std::cout << "hello world." << std::endl;
@@ -272,6 +299,7 @@ int main(int argc,char* argv[])
     test_whenany();
     test_parallelfor();
     test_parallelsum();
+    test_lambda();
     std::cout << "test over!" << std::endl;
     return 0;
 }
