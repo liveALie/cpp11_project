@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <algorithm>
 
 #include "non_copyable.hpp"
 #include "any.hpp"
@@ -95,6 +96,129 @@ extern Task<vector<typename Range::value_type::ReturnType>()> WhenAll(Range& ran
         return v;//这是返回的task调用get之后的返回值。
     };
     return Task<vector<Return_type>()>(task);//这是whenall的返回值
+}
+//以下为whenany的实现
+template<typename R>
+struct RangeTrait{
+    typedef R type;
+};
+
+template<typename R>
+struct RangeTrait<std::shared_future<R>>{
+    typedef R type;
+};
+
+template<typename Range>
+std::vector<std::shared_future<typename Range::value_type::ReturnType>> TransForm(Range& range)
+{
+    typedef typename Range::value_type::ReturnType Return_type;
+    std::vector<std::shared_future<Return_type>> fv;
+    for(auto& task : range)
+    {
+        fv.emplace_back(task.Run());
+    }
+    return fv;
+}
+
+template<typename Range>
+std::pair<int,typename RangeTrait<typename Range::value_type>::type> GetAnyResultPair(const Range& fv)
+{
+    size_t size = fv.size();
+    while(true){
+        for(size_t i = 0; i < size; ++i){
+            if(fv[i].wait_for(std::chrono::milliseconds(1)) == std::future_status::ready){
+                return std::make_pair(i,fv[i].get());
+            }
+        }
+    }
+}
+
+template<typename Range>
+extern Task<std::pair<int,typename Range::value_type::ReturnType>()> WhenAny(Range& range)
+{
+    typedef typename Range::value_type::ReturnType Return_type;
+    auto task = [&range]{
+        return GetAnyResultPair(TransForm(range));
+    };
+    return Task<std::pair<int,Return_type>()>(task);
+}
+
+//一下为并行算法
+template<typename Iterator,typename Function>
+void ParallelForeach(Iterator& begin,Iterator& end,Function& func)
+{
+    auto part_num = std::thread::hardware_concurrency();
+    auto block_size = std::distance(begin,end) / part_num;
+    Iterator last = begin;
+    if(block_size > 0){
+        std::advance(last,(part_num - 1) * block_size);
+    }else{
+        last = end;
+        block_size = 1;
+    }
+
+    std::vector<std::future<void>> futures;
+    for(; begin != last; std::advance(begin,block_size)){
+        futures.emplace_back(std::async([begin,block_size,&func]{
+            std::for_each(begin,begin + block_size,func);
+        }));
+    }
+
+    futures.emplace_back(std::async([begin,end,&func]{
+        std::for_each(begin,end,func);
+    }));
+
+    std::for_each(futures.begin(),futures.end(),[](std::future<void>& future){
+        future.wait();
+    });
+}
+
+template<typename... Funs>
+void ParallelInvoke(Funs&&... funs)
+{
+    TaskGroup group;
+    group.Run(std::forward<Funs>(funs)...);
+    group.Wait();
+}
+
+template<typename Range,typename ReduceFunc>
+typename Range::value_type ParallelReduce(Range& range,typename Range::value_type& init,ReduceFunc reduce_func)
+{
+    return ParallelReduce<Range,ReduceFunc>(range,init,reduce_func,reduce_func);
+}
+
+template<typename Range,typename RangeFunc,typename ReduceFunc>
+typename Range::value_type ParallelReduce(Range& range,\
+    typename Range::value_type& init,RangeFunc range_func,ReduceFunc reduce_func)
+{
+    auto part_num = std::thread::hardware_concurrency();
+    auto begin = std::begin(range);
+    auto end = std::end(range);
+    auto block_size = std::distance(begin,end) / part_num;
+    typename Range::iterator last = begin;
+    if(block_size > 0){
+        std::advance(last,(part_num - 1) * block_size);
+    }else{
+        last = end;
+        block_size = 1;
+    }
+
+    typedef typename Range::value_type ValueType;
+    std::vector<std::future<ValueType>> futures;
+    for(; begin != last; std::advance(begin,block_size)){
+        futures.emplace_back(std::async([begin,&init,block_size,&range_func]{
+            return range_func(begin,begin + block_size,init);
+        }));
+    }
+
+    futures.emplace_back(std::async([begin,&init,block_size,&range_func]{
+        return range_func(begin,begin + block_size,init);
+    }));
+    vector<ValueType> results;
+    std::for_each(futures.begin(),futures.end(),[&results](std::future<ValueType>& future){
+        results.emplace_back(future.get());
+    });
+    return reduce_func(results.begin(),results.end(),init);
 }
 
 #endif // _C11TEST_TASK_GROUP_HPP_
