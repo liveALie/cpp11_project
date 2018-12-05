@@ -98,4 +98,10 @@ struct DD{
 };
 /////////////以上测试切面
 
+struct MyStruct{
+    MyStruct(int a,int b):a_(a),b_(b){}
+    int a_;
+    int b_;
+};
+
 #endif //_C11TEST_CLASSES_HPP_
