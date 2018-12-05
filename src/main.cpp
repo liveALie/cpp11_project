@@ -17,6 +17,7 @@
 #include "variant.hpp"
 #include "task.hpp"
 #include "task_group.hpp"
+#include "optional.hpp"
 
 using namespace std;
 
@@ -282,6 +283,22 @@ void test_lambda()
     tc();
 }
 
+void test_optional()
+{
+    Optional<std::string> a("ok");
+    Optional<std::string> b("ok");
+    Optional<std::string> c("aa");
+    std::cout << "test_optional original c:" << *c << std::endl;
+    c = a;
+    std::cout << "test_optional new c:" << *c << std::endl;
+
+    Optional<MyStruct> op;
+    op.Emplace(1,2);
+    if(op){
+        std::cout << "test optional op a:" << (*op).a_ << ",b:" << (*op).b_ << std::endl;
+    }
+}
+
 int main(int argc,char* argv[])
 {
     std::cout << "hello world." << std::endl;
@@ -300,6 +317,7 @@ int main(int argc,char* argv[])
     test_parallelfor();
     test_parallelsum();
     test_lambda();
+    test_optional();
     std::cout << "test over!" << std::endl;
     return 0;
 }
