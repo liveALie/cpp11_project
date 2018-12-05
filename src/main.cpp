@@ -299,6 +299,23 @@ void test_optional()
     }
 }
 
+int Foo(int x)
+{
+    return x * 2;
+}
+
+void test_lazy()
+{
+    int y = 4;
+    auto lazyer1 = lazy(Foo,y);
+    std::cout << "test lazyer1:" << lazyer1.Value() << std::endl;
+
+    Lazy<int> lazyer2 = lazy([]{return 12;});
+    std::cout << "test lazyer2:" << lazyer2.Value() << std::endl;
+    MyStruct t;
+    t.Load();
+}
+
 int main(int argc,char* argv[])
 {
     std::cout << "hello world." << std::endl;
@@ -318,6 +335,7 @@ int main(int argc,char* argv[])
     test_parallelsum();
     test_lambda();
     test_optional();
+    test_lazy();
     std::cout << "test over!" << std::endl;
     return 0;
 }
