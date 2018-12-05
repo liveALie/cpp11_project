@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
+
+#include "lazy.hpp"
 
 using namespace std;
 
@@ -98,10 +101,35 @@ struct DD{
 };
 /////////////以上测试切面
 
+struct BigObject2{
+    BigObject2(){
+        std::cout << "lazy load big object2!" << std::endl;
+    }
+};
+/////////////lazy
+
 struct MyStruct{
+    MyStruct()
+        :a_(0),b_(0)
+    { 
+        obj_ = lazy([]{
+            return make_shared<BigObject2>();
+        });
+    }
     MyStruct(int a,int b):a_(a),b_(b){}
+    void Load()
+    {
+        obj_.Value();
+    }
+
     int a_;
     int b_;
+    Lazy<std::shared_ptr<BigObject2>> obj_;
 };
+///////////////以上测试optional
+
+
+
+
 
 #endif //_C11TEST_CLASSES_HPP_
