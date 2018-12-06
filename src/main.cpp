@@ -113,11 +113,11 @@ void print(std::shared_ptr<BigObject> p,const string& str)
 
 void test_object_pool()
 {
-    std::cout << "test1" << std::endl;
+    //std::cout << "test1" << std::endl;
     ObjectPool<BigObject> pool;
-    std::cout << "test2" << std::endl;
+    //std::cout << "test2" << std::endl;
     pool.Init(2);
-    std::cout << "test3" << std::endl;
+    //std::cout << "test3" << std::endl;
 
     {
         auto p = pool.Get();
@@ -131,15 +131,17 @@ void test_object_pool()
 
     print(p,"p");
     print(p2,"p2");
-    ObjectPool<BigObject> pool2;
-    pool2.Init(2,1);
-    auto p4 = pool2.Get<int>();
+    //ObjectPool<BigObject> pool2;
+    pool.Init<int>(2,1);
+    auto p4 = pool.Get<int>();
     print(p4,"p4");
-    std::cout << "test5" << std::endl;
-    pool2.Init(2,3,6);
-    auto p5 = pool2.Get<int,int>();
+    auto p5 = pool.Get<int>();
     print(p5,"p5");
-    /////////////////这里阻塞是为什么？
+    std::cout << "test5" << std::endl;
+    // pool.Init<const int&,const int&>(2,3,6);
+    // auto p5 = pool.Get<const int&,const int&>();
+    // print(p5,"p5");
+    /////////////////这里阻塞是为什么？因为对象池里面的对象未完全取出来，则会阻塞。
 }
 
 void Ht(int a)
@@ -407,7 +409,7 @@ int main(int argc,char* argv[])
     test_observer();
     test_visitor();
     test_command();
-    //test_object_pool();
+    test_object_pool();
     test_aspect();
     test_task();
     test_async();
