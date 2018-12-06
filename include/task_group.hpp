@@ -11,29 +11,32 @@
 #include "any.hpp"
 #include "variant.hpp"
 
+//TaskGroup的思想是，保存所有Task的future，调用future的get或者wait时，则一起执行，并且时多线程执行。
+//所有的run函数就是为了获取每个任务的future，并存储下来。
 class TaskGroup : NonCopyable{
     typedef Variant<int,std::string,double,short,unsigned int> RetVariant;
 public:
     TaskGroup(){}
     ~TaskGroup(){}
-
+    //返回类型为void
     template<typename R,class = typename std::enable_if<!std::is_same<R,void>::value>::type>
     void Run(Task<R()>&& task)
     {
         group_.emplace(R(),task.Run());
     }
-
+    //返回类型不为void
     template<typename R,class = typename std::enable_if<!std::is_same<R,void>::value>::type>
     R Run(Task<R()>& task)
     {
         group_.emplace(R(),task.Run());
     }
-
+    //返回类型为void的
     void Run(Task<void()>&& task)
     {
         void_group_.push_back(task.Run());
     }
 
+    //这个函数和下一个模板函数是参数解包。
     template<typename F>
     void Run(F&& f)
     {
@@ -52,12 +55,14 @@ public:
         for(auto it = group_.begin(); it != group_.end(); ++it)
         {
             auto vrt = it->first;
+            //访问有返回值类型的future的返回值。
             vrt.Visit([&](int a){FutureGet<int>(it->second);},
                         [&](double a){FutureGet<double>(it->second);},
                         [&](std::string a){FutureGet<std::string>(it->second);},
                         [&](short a){FutureGet<short>(it->second);},
                         [&](unsigned int a){FutureGet<unsigned int>(it->second);});
         }
+        //执行无返回值的任务
         for(auto it = void_group_.begin(); it != void_group_.end(); ++it)
         {
             it->get();
