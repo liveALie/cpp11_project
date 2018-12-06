@@ -357,6 +357,48 @@ void test_function_traits()
     std::cout << "type_t4:" << typeid(type_t4).name() << std::endl;
 }
 
+namespace ioc_container{
+struct ICar{
+    virtual ~ICar(){}
+    virtual void test() = 0;
+};
+
+struct Bus:ICar{
+    Bus(){};
+    void test()
+    {
+        std::cout << "Bus::test" << std::endl;
+    }
+};
+
+struct Car:ICar{
+    string price_;
+    Car(const string& price):price_(price){};
+    void test()
+    {
+        std::cout << "Car::test" << std::endl;
+    }
+};
+
+void test_ioc_container()
+{
+    IocContainer ic;
+    ic.RegisterType<ICar,Bus>("bus");
+    
+    std::shared_ptr<ICar> a = ic.ResolveShared<ICar>("bus");
+    a->test();
+    ic.RegisterType<ICar,Car,const string&>("car");
+
+    std::shared_ptr<ICar> b = ic.ResolveShared<ICar,const string&>("car","Bwm");
+    b->test();
+
+    Car* c = dynamic_cast<Car*>(b.get());
+    
+    std::cout << "car name:" << c->price_ << std::endl;
+}
+
+};
+
 int main(int argc,char* argv[])
 {
     std::cout << "hello world." << std::endl;
@@ -380,7 +422,7 @@ int main(int argc,char* argv[])
     test_any();
     test_mubanlei::test_muban();
     test_function_traits();
-
+    ioc_container::test_ioc_container();
     std::cout << "test over!" << std::endl;
     return 0;
 }
