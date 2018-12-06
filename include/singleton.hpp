@@ -16,14 +16,14 @@ public:
         }
         return instance_;
     }
-
+    //获取实例
     static T* GetInstance(){
         if(!instance_){
             throw std::logic_error("the instance is not init,please initialize the instance first.");
         }
         return instance_;
     }
-
+    //销毁单利对象
     static void DestroyInstance(){
         if(instance_){
             delete instance_;
