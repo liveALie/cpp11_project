@@ -9,7 +9,7 @@
 
 #include "any.hpp"
 #include "non_copyable.hpp"
-//用any进行类型擦除
+//用any进行类型擦除，创建的时指针类型
 class IocContainer : public NonCopyable{
 public:
     IocContainer(){}
@@ -18,6 +18,7 @@ public:
     template<typename T,typename Depend,typename... Args>
     typename std::enable_if<!std::is_base_of<T,Depend>::value>::type RegisterType(const std::string& key)
     {
+        //这里也可以用函数萃取的to_function
         std::function<T*(Args...)> func = [](Args... args){ return new T(new Depend(args...)); };
         RegisterType(key,func);
     }
