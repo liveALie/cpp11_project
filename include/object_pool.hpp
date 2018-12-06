@@ -15,24 +15,23 @@ const int MAX_OBJECT_NUM = 10;
 
 template<class T>
 class ObjectPool : NonCopyable {
+    //定义了一个模板别名
     template<typename... Args>
     using Constructor = std::function<shared_ptr<T>(Args...)>;
 public:
     //对象池的初始化，可变参数模板函数
+    //最好显示指定参数类型
     template<typename... Args>
     void Init(int size, Args&&... args){
-        std::cout << "pool1" << std::endl;
         if(size <=0 || size > MAX_OBJECT_NUM){
             throw logic_error("object num out of range.");
         }
-        std::cout << "pool2" << std::endl;
+        //以构造函数的类型标识为key值，存储所有创建的shared_ptr对象
+        //函数类型为shared_ptr<T>(Args...)
         auto constructName = typeid(Constructor<Args...>).name();
-        std::cout << "pool3 constructName" << constructName << std::endl;
         for(int i = 0; i < size; ++i){
-            std::cout << "pool4" << std::endl;
             object_map_.emplace(constructName,shared_ptr<T>(new T(std::forward<Args>(args)...),
                 [this,constructName](T* p){
-                    std::cout << "shanchuqi " << constructName << std::endl;
                     object_map_.emplace(std::move(constructName),shared_ptr<T>(p));
                 }
             ));
@@ -42,19 +41,13 @@ public:
     //取对象
     template<class... Args>
     shared_ptr<T> Get(){
-        std::cout << "get1" << std::endl;
         string constructName = typeid(Constructor<Args...>).name();
-        std::cout << "get2 constructName " << constructName << std::endl;
         auto range = object_map_.equal_range(constructName); ////////equal_range的用法。
-        std::cout << "get3" << std::endl;
         for(auto it = range.first; it != range.second; ++it){
             auto ptr = it->second;
-            std::cout << "get4" << std::endl;
             object_map_.erase(it);
-            std::cout << "get5" << std::endl;
             return ptr;
         }
-        std::cout << "return nullptr" << std::endl;
         return nullptr;
     }
 private:
