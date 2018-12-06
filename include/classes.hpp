@@ -37,7 +37,8 @@ struct D{
 struct E{
     int a;
     int operator()(){ return a; }
-    int operator()(int n){ return a + n; }
+    int value(){return a;}
+    //int operator()(int n){ return a + n; }
     int triple0(){ return a * 3; }
     int triple(int n){ return a * 3 + n; }
     int triple1()const{ return a * 3; }
