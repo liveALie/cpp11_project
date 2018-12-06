@@ -18,6 +18,7 @@
 #include "task.hpp"
 #include "task_group.hpp"
 #include "optional.hpp"
+#include "function_traits.hpp"
 
 using namespace std;
 
@@ -95,6 +96,7 @@ void test_command()
     cmd.Wrap(&E::triple,&t,x);
     cmd.Wrap(&E::triple,&t,3);
     cmd.Wrap(&E::triple2,&t,5);
+    cmd.Wrap(&E::value,&t);
 
     auto r = cmd.Excecute();
     std::cout << "cmd.Excecute result:" << r << std::endl;
@@ -316,6 +318,45 @@ void test_lazy()
     t.Load();
 }
 
+void test_any()
+{
+    Any n;
+    auto r = n.IsNull();
+    string s1 = "hello";
+    n = s1;//先调用构造，再调用赋值。
+    //n.AnyCast<int>();
+
+    Any n1 = 1;//只调用构造。
+    auto r2 = n1.Is<int>();
+    std::cout << "test any r:" << r << ",r2:" << r2 << std::endl;
+}
+
+namespace test_mubanlei{
+template<typename T>
+struct Test{
+    Test(T&& t):t_(std::forward<T>(t)){}
+    T t_;
+};
+
+void test_muban()
+{
+    Test<int> t(1);
+    std::cout << "test_muban:t:" << t.t_ << std::endl;
+}
+
+}
+
+void test_function_traits()
+{
+    typedef int(E::*type_t1)();
+    typedef decltype(&E::operator()) type_t2; 
+    //typedef typename decltype(std::declval<E>().operator())(E::*type_t3)();
+    std::cout << "test_function_traits type_t1:" << typeid(type_t1).name() << ",type_t2:" << typeid(type_t2).name() << std::endl;
+    //std::cout << "type_t3:" << typeid(type_t3).name() << std::endl;
+    typedef typename function_traits<E>::function_type type_t4;
+    std::cout << "type_t4:" << typeid(type_t4).name() << std::endl;
+}
+
 int main(int argc,char* argv[])
 {
     std::cout << "hello world." << std::endl;
@@ -336,6 +377,10 @@ int main(int argc,char* argv[])
     test_lambda();
     test_optional();
     test_lazy();
+    test_any();
+    test_mubanlei::test_muban();
+    test_function_traits();
+
     std::cout << "test over!" << std::endl;
     return 0;
 }
