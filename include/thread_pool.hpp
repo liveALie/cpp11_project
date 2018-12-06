@@ -10,11 +10,17 @@
 
 const int MAX_TASK_COUNT = 100;
 
+//1，创建任务队列
+//2，启动线程池
+//3，添加任务
+//4，停止任务队列
+//5，停止线程池并销毁
+//维护一个任务队列和一个线程列表
 class ThreadPool{
 public:
     using Task = std::function<void()>; ///一般的线程池任务是为此类型的。
-    ThreadPool(int num_threads = std::thread::hardware_concurrency()) //县城的数量应和硬件的cpu数量相等。
-        :queue_(MAX_TASK_COUNT)
+    ThreadPool(int num_threads = std::thread::hardware_concurrency()) //线程的数量应和硬件的cpu数量相等。
+        :queue_(MAX_TASK_COUNT)//创建任务队列
     {
         Start(num_threads); //默认启动
     }
@@ -26,7 +32,7 @@ public:
 
     void Stop()
     {
-        std::call_once(flag_,[this]{ StopThreadPool(); });//停止线程池，保证之调用一次。
+        std::call_once(flag_,[this]{ StopThreadPool(); });//停止线程池，保证只调用一次。
     }
     //线程池主要的接口就是对外提供添加任务的接口，重载。
     void AddTask(Task&& task)
