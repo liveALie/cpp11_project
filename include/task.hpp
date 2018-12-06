@@ -8,12 +8,18 @@
 template<typename T>
 class Task;
 
+//模板特化
+//1，Wait，无参数则调用这个
+//2，Get，有参数则调用这个。
+//3，Run，获取future则调用这个
+//4,Then最复杂的，以上一个的执行结果作为下一个任务的入参，返回要给Task
 template<typename R,typename... Args>
 class Task<R(Args...)>{
 public:
     typedef R ReturnType;
+    //提供两种狗咱函数
     Task(std::function<R(Args...)>&& f):fun_(std::move(f)){}
-    Task(std::function<const R(Args...)>& f) : fun_(f){}
+    Task(const std::function<R(Args...)>& f) : fun_(f){}
     ~Task(){}
     void Wait()
     {
