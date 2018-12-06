@@ -3,23 +3,26 @@
 
 #include <type_traits>
 
+//面对一个类型的对象
 template<typename T>
 class Optional{
+    //指定大小和内存对齐大小的一块缓存类型
     using data_t = typename std::aligned_storage<sizeof(T),std::alignment_of<T>::value>::type;
 public:
     Optional(){}
+    //以T类型对象初始化
     Optional(const T& v)
     {
         Create(v);
     }
-
+    //拷贝构造
     Optional(const Optional& other)
     {
         if(other.IsInit()){
             Assign(other);
         }
     }
-
+    //复制运算符
     Optional& operator=(const Optional& other)
     {
         if(this == &other)
@@ -36,14 +39,14 @@ public:
     {
         Destroy();
     }
-
+    //以参数来重新初始化
     template<typename... Args>
     void Emplace(Args&&... args)
     {
         Destroy();
         Create(std::forward<Args>(args)...);
     }
-
+    //是否已经初始化
     bool IsInit()const
     {
         return has_init_;
@@ -54,6 +57,7 @@ public:
         return IsInit();
     }
 
+    //*op
     T const& operator*()const
     {
         if(IsInit()){
@@ -63,13 +67,14 @@ public:
     }
 
 private:
+    //创建，并初始化
     template<typename... Args>
     void Create(Args&&... args)
     {
         new (&data_) T(std::forward<Args>(args)...);
         has_init_ = true;
     }
-
+    //销毁
     void Destroy()
     {
         if(has_init_){
@@ -77,7 +82,7 @@ private:
             ((T*)(&data_))->~T();
         }
     }
-
+    //赋值
     void Assign(const Optional& other)
     {
         if(other.IsInit()){
@@ -87,7 +92,7 @@ private:
             Destroy();
         }
     }
-
+    //拷贝
     void Copy(const data_t& val)
     {
         Destroy();
