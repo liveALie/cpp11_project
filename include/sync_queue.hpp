@@ -8,8 +8,12 @@
 #include <iostream>
 
 using namespace std;
-
-template<typename T>//此为任务的类型
+//1,添加
+//2，取任务，可以取一个，或者取一列
+//3，空或者满的状态查询，和任务大小查询
+//4，停止任务队列
+//维护一个任务列表
+template<typename T>//此为任务的类型,由线程池指定
 class SyncQueue{
 public:
     SyncQueue(int maxSize)
@@ -42,7 +46,9 @@ public:
     //一次取一个任务
     void Take(T& t)
     {
+        //此处用unique_ptr
         std::unique_lock<std::mutex> locker(mutex_);
+        //如果不空或者需要停止，则往下执行，如果空则等待。
         not_empty_.wait(locker,[this]{ return need_stop_ || NotEmpty(); });
         if(need_stop_){
             return;
