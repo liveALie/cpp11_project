@@ -1,1 +1,1 @@
-# test on c++11 new futures
+# test on c++11's new futures
