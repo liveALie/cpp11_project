@@ -18,6 +18,9 @@ template <class T> class ObjectPool : NonCopyable {
   using Constructor = std::function<shared_ptr<T>(Args...)>;
 
 public:
+  ObjectPool() : is_desctructing_(false) {}
+  ~ObjectPool() { is_desctructing_ = true; }
+
   //对象池的初始化，可变参数模板函数
   //最好显示指定参数类型
   template <typename... Args> void Init(int size, Args &&... args) {
@@ -28,12 +31,18 @@ public:
     //函数类型为shared_ptr<T>(Args...)
     auto constructName = typeid(Constructor<Args...>).name();
     for (int i = 0; i < size; ++i) {
-      object_map_.emplace(
-          constructName,
-          shared_ptr<T>(
-              new T(std::forward<Args>(args)...), [this, constructName](T *p) {
-                object_map_.emplace(std::move(constructName), shared_ptr<T>(p));
-              }));
+      object_map_.emplace(constructName,
+                          shared_ptr<T>(new T(std::forward<Args>(args)...),
+                                        [this, constructName](T *p) {
+                                          if (!this->is_desctructing_) {
+                                            object_map_.emplace(
+                                                std::move(constructName),
+                                                shared_ptr<T>(p));
+                                          }else{
+                                            delete p;
+                                          }
+
+                                        }));
     }
   }
 
@@ -51,5 +60,6 @@ public:
   }
 
 private:
+  bool is_desctructing_;
   multimap<string, std::shared_ptr<T>> object_map_;
 };
