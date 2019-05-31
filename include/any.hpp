@@ -1,5 +1,4 @@
-#ifndef _C11TEST_ANY_HPP_
-#define _C11TEST_ANY_HPP_
+#pragma once
 
 #include <iostream>
 #include <memory>
@@ -103,5 +102,3 @@ private:
   BasePtr ptr_;
   std::type_index type_index_;
 };
-
-#endif // _C11TEST_ANY_HPP_

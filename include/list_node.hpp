@@ -1,5 +1,4 @@
-#ifndef _C11TEST_LIST_NODE_HPP_
-#define _C11TEST_LIST_NODE_HPP_
+#pragma once
 
 typedef int Rank;
 //#define ListNodePosi ListNode<T>*
@@ -30,5 +29,3 @@ template <typename T> struct ListNode {
     return p;
   }
 };
-
-#endif // _C11TEST_LIST_NODE_HPP_

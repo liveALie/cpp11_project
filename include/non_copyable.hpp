@@ -1,5 +1,4 @@
-#ifndef _C11TEST_NONCOPYABLE_HPP_
-#define _C11TEST_NONCOPYABLE_HPP_
+#pragma once
 
 class NonCopyable {
 protected:
@@ -8,5 +7,3 @@ protected:
   NonCopyable(const NonCopyable &) = delete;
   NonCopyable &operator=(const NonCopyable &) = delete;
 };
-
-#endif // _C11TEST_NONCOPYABLE_HPP_

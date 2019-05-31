@@ -1,5 +1,4 @@
-#ifndef _C11TEST_OBJECTPOOL_HPP_
-#define _C11TEST_OBJECTPOOL_HPP_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -54,5 +53,3 @@ public:
 private:
   multimap<string, std::shared_ptr<T>> object_map_;
 };
-
-#endif // _C11TEST_OBJECTPOOL_HPP_

@@ -1,5 +1,4 @@
-#ifndef _C11TEST_SYNCQUEUE_HPP_
-#define _C11TEST_SYNCQUEUE_HPP_
+#pragma once
 
 #include <condition_variable>
 #include <iostream>
@@ -114,5 +113,3 @@ private:
   size_t max_size_;                   //最大任务数
   bool need_stop_;                    //停止的标志位
 };
-
-#endif // _C11TEST_SYNCQUEUE_HPP_

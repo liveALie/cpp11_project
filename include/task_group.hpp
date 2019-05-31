@@ -1,5 +1,4 @@
-#ifndef _C11TEST_TASK_GROUP_HPP_
-#define _C11TEST_TASK_GROUP_HPP_
+#pragma once
 
 #include <algorithm>
 #include <map>
@@ -204,5 +203,3 @@ ParallelReduce(Range &range, typename Range::value_type &init,
                 });
   return reduce_func(results.begin(), results.end(), init);
 }
-
-#endif // _C11TEST_TASK_GROUP_HPP_

@@ -1,5 +1,4 @@
-#ifndef _C11TEST_EVENTS_HPP_
-#define _C11TEST_EVENTS_HPP_
+#pragma once
 
 #include <map>
 
@@ -45,5 +44,3 @@ private:
   int observer_id_ = 0;
   std::map<int, Func> connections_;
 };
-
-#endif // _C11TEST_EVENTS_HPP_

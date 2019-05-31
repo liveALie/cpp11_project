@@ -1,5 +1,4 @@
-#ifndef _C11TEST_ASPECT_HPP_
-#define _C11TEST_ASPECT_HPP_
+#pragma once
 
 #include "non_copyable.hpp"
 #include <utility>
@@ -88,5 +87,3 @@ void Invoke(F &&f, Args &&... args) {
       identify_t<
           AP>()...); //再调用所有的切面函数，这里根据切面类型，构造了ap对象。
 }
-
-#endif // _C11TEST_ASPECT_HPP_

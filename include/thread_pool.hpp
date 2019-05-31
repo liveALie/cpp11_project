@@ -1,5 +1,4 @@
-#ifndef _C11TEST_THREADPOOL_HPP_
-#define _C11TEST_THREADPOOL_HPP_
+#pragma once
 
 #include "sync_queue.hpp"
 #include <atomic>
@@ -83,5 +82,3 @@ private:
   atomic_bool running_; //用于标志线程池开始和结束的标志位
   std::once_flag flag_; //用于call_once的标志位
 };
-
-#endif // _C11TEST_THREADPOOL_HPP_

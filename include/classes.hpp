@@ -1,5 +1,4 @@
-#ifndef _C11TEST_CLASSES_HPP_
-#define _C11TEST_CLASSES_HPP_
+#pragma once
 
 #include <iostream>
 #include <memory>
@@ -94,4 +93,3 @@ struct MyStruct {
 };
 ///////////////以上测试optional
 
-#endif //_C11TEST_CLASSES_HPP_

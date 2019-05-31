@@ -1,5 +1,4 @@
-#ifndef _C11TEST_LOG_HPP_
-#define _C11TEST_LOG_HPP_
+#pragma once
 
 #include <iostream>
 #include <tuple>
@@ -21,5 +20,3 @@ template <typename... Args> void Log(Args... args) {
   printtp(std::make_tuple(args...));
   cout << endl;
 }
-
-#endif // _C11TEST_LOG_HPP_

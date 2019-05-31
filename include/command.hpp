@@ -1,5 +1,4 @@
-#ifndef _C11TEST_COMMAND_HPP_
-#define _C11TEST_COMMAND_HPP_
+#pragma once
 
 #include <functional>
 #include <type_traits>
@@ -35,5 +34,3 @@ public:
 private:
   std::function<R()> fun_;
 };
-
-#endif // _C11TEST_COMMAND_HPP_

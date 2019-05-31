@@ -1,5 +1,4 @@
-#ifndef _C11TEST_SUBJECT_HPP_
-#define _C11TEST_SUBJECT_HPP_
+#pragma once
 
 #include "visitor.hpp"
 #include <iostream>
@@ -28,5 +27,3 @@ struct PrintVisitor : Base::MyVisitor {
 
   void Visit(const SubB &b) { std::cout << "from subB" << b.val << std::endl; }
 };
-
-#endif // _C11TEST_SUBJECT_HPP_

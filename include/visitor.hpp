@@ -1,5 +1,4 @@
-#ifndef _C11TEST_VISITOR_HPP_
-#define _C11TEST_VISITOR_HPP_
+#pragma once
 
 //////////为什么写三个visitor？？ 这是可变参数模板类的用法  回头看书！！
 //这是可变参数模板类的解参数包的方式，1、递归 + 特化，2、特化 +
@@ -14,5 +13,3 @@ struct Visitor<T, Types...> : Visitor<Types...> {
 };
 
 template <typename T> struct Visitor<T> { virtual void Visit(const T &t) = 0; };
-
-#endif // _C11TEST_VISITOR_HPP_

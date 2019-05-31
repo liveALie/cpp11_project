@@ -1,5 +1,4 @@
-#ifndef _C11TEST_FUNCTION_TRAITS_HPP_
-#define _C11TEST_FUNCTION_TRAITS_HPP_
+#pragma once
 
 #include <functional>
 #include <tuple>
@@ -74,5 +73,3 @@ typename function_traits<Function>::pointer
 to_function_pointer(const Function &lambda) {
   return static_cast<typename function_traits<Function>::pointer>(lambda);
 }
-
-#endif // _C11TEST_FUNCTION_TRAIT_HPP_

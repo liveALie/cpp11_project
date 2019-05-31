@@ -1,5 +1,4 @@
-#ifndef _C11TEST_IOCCONTAINER_HPP_
-#define _C11TEST_IOCCONTAINER_HPP_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -90,5 +89,3 @@ private:
 private:
   std::unordered_map<std::string, Any> creaters_;
 };
-
-#endif // _C11TEST_IOCCONTAINER_HPP_

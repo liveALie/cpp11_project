@@ -1,5 +1,4 @@
-#ifndef _C11TEST_LAZY_HPP_
-#define _C11TEST_LAZY_HPP_
+#pragma once
 
 #include <functional>
 
@@ -40,5 +39,3 @@ Lazy<typename std::result_of<Fn(Args...)>::type> lazy(Fn &&fn,
   return Lazy<typename std::result_of<Fn(Args...)>::type>(
       std::forward<Fn>(fn), std::forward<Args>(args)...);
 }
-
-#endif // _C11TEST_LAZY_HPP_

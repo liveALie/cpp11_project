@@ -1,5 +1,4 @@
-#ifndef _C11TEST_MESSAGE_BUS_HPP_
-#define _C11TEST_MESSAGE_BUS_HPP_
+#pragma once
 
 #include <functional>
 #include <map>
@@ -62,5 +61,3 @@ private:
   std::multimap<std::string, Any> map_;
   typedef std::multimap<std::string, Any>::iterator Iterater;
 };
-
-#endif // _C11TEST_MESSAGE_BUS_HPP_

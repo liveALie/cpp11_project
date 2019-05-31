@@ -1,5 +1,4 @@
-#ifndef _C11TEST_SINGLETON_HPP_
-#define _C11TEST_SINGLETON_HPP_
+#pragma once
 
 #include <stdexcept>
 #include <utility>
@@ -40,5 +39,3 @@ private:
 };
 
 template <class T> T *Singleton<T>::instance_ = nullptr;
-
-#endif // _C11TEST_SINGLETON_HPP_

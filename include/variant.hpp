@@ -1,5 +1,4 @@
-#ifndef _C11TEST_VARIANT_HPP_
-#define _C11TEST_VARIANT_HPP_
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -258,5 +257,3 @@ private:
   std::type_index m_typeIndex; //����ID
   int m_index;
 };
-
-#endif // _C11TEST_VARIANT_HPP_
