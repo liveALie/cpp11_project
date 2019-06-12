@@ -92,4 +92,3 @@ struct MyStruct {
   Lazy<std::shared_ptr<BigObject2>> obj_;
 };
 ///////////////以上测试optional
-

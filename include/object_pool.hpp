@@ -38,7 +38,7 @@ public:
                                             object_map_.emplace(
                                                 std::move(constructName),
                                                 shared_ptr<T>(p));
-                                          }else{
+                                          } else {
                                             delete p;
                                           }
 

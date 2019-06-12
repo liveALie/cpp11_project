@@ -7,17 +7,12 @@
 
 struct Any {
 public:
-  Any(void) : type_index_(std::type_index(typeid(void))) {
-    // std::cout << "Any(void) is used." << std::endl;
-  }
-  //两种拷贝构造函数
-  Any(const Any &that) : ptr_(that.Clone()), type_index_(that.type_index_) {
-    // std::cout << "Any(const Any& that) is used." << std::endl;
-  }
+  Any(void) : type_index_(std::type_index(typeid(void))) {}
 
-  Any(Any &&that) : ptr_(std::move(that.ptr_)), type_index_(that.type_index_) {
-    // std::cout << "Any(Any&& that) is used." << std::endl;
-  }
+  //两种拷贝构造函数
+  Any(const Any &that) : ptr_(that.Clone()), type_index_(that.type_index_) {}
+
+  Any(Any &&that) : ptr_(std::move(that.ptr_)), type_index_(that.type_index_) {}
 
   //为了区分Any和U类型
   template <
@@ -26,25 +21,18 @@ public:
           !std::is_same<typename std::decay<U>::type, Any>::value, U>::type>
   Any(U &&value)
       : ptr_(new Derived<typename std::decay<U>::type>(std::forward<U>(value))),
-        type_index_(std::type_index(typeid(typename std::decay<U>::type))) {
-    // std::cout << "Any(U&& value) is used.type index name:" <<
-    // type_index_.name() << std::endl;
-  }
+        type_index_(std::type_index(typeid(typename std::decay<U>::type))) {}
 
   bool IsNull() const { return !bool(ptr_); }
 
   string GetTypeIndexName() { return type_index_.name(); }
 
   template <class U> bool Is() const {
-    // std::cout << "bool Is()const is used.type index name:" <<
-    // type_index_.name() << std::endl;
     return type_index_ == std::type_index(typeid(U));
   }
 
   //这个函数调用没有参数，所以必须指定函数模板参数。
   template <typename U> U &AnyCast() {
-    // std::cout << "AnyCast is used. U type index name:" <<
-    // std::type_index(typeid(U)).name() << std::endl;
     if (!Is<U>()) {
       std::cout << "can not cast " << type_index_.name() << " to "
                 << typeid(U).name() << std::endl;
@@ -53,12 +41,14 @@ public:
     auto derived = dynamic_cast<Derived<U> *>(ptr_.get());
     return derived->value_;
   }
+
   //重载赋值
   Any &operator=(const Any &a) {
     // std::cout << "operator= is used." << std::endl;
     if (this == &a)
       return *this;
-    ptr_ = a.Clone();//这里怎么可以直接赋值呢,可以std::unique_ptr<T> a; a = std::unique_ptr<T>(new T);
+    ptr_ = a.Clone(); //这里怎么可以直接赋值呢,可以std::unique_ptr<T> a; a =
+                      //std::unique_ptr<T>(new T);
     type_index_ = a.type_index_;
     // std::cout << "Any& operator=(const Any& a) is used." << std::endl;
     return *this;
@@ -90,6 +80,7 @@ private:
 
     T value_;
   };
+
   //主要是value的克隆。
   BasePtr Clone() const {
     if (ptr_) {
