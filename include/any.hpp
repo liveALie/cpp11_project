@@ -44,13 +44,11 @@ public:
 
   //重载赋值
   Any &operator=(const Any &a) {
-    // std::cout << "operator= is used." << std::endl;
     if (this == &a)
       return *this;
     ptr_ = a.Clone(); //这里怎么可以直接赋值呢,可以std::unique_ptr<T> a; a =
-                      //std::unique_ptr<T>(new T);
+                      // std::unique_ptr<T>(new T);
     type_index_ = a.type_index_;
-    // std::cout << "Any& operator=(const Any& a) is used." << std::endl;
     return *this;
   }
 
