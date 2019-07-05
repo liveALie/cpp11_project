@@ -1,6 +1,8 @@
 #pragma once
 #include <atomic>
 
+//use memory-model
+
 template<typename T>
 class LockFreeStackUseReferenceCount
 {
