@@ -113,7 +113,6 @@ public:
       ;
   }
 
-  
   //通过存储读取每个结点的线程数来实现：以精确识别出哪些结点正在被引用以及何时没有线程读取这些结点，那么就可以删除此结点。
   std::shared_ptr<T> pop() {
     std::atomic<void *> &hp = get_hazard_pointer_for_current_thread();
