@@ -8,24 +8,26 @@ template <typename T> class LockFreeStackUseReferenceCount {
 private:
   struct node;
   struct counted_node_ptr {
-    int external_count;
+    int external_count; //外部引用计数
     node *ptr;
   };
 
   struct node {
     std::shared_ptr<T> data;
-    std::atomic<int> internal_count;
+    std::atomic<int> internal_count; //内部引用计数
     counted_node_ptr next;
 
     node(T const &data_)
         : data(std::make_shared<T>(data_)), internal_count(0) {}
   };
 
-  std::atomic<counted_node_ptr> head;
+  std::atomic<counted_node_ptr>
+      head; //这里是原子的，所以counted_node_ptr里的external_count不必是原子的。
 
-  void increase_head_count(counted_node_ptr &old_counter) {
+  void increase_head_count(
+      counted_node_ptr
+          &old_counter) { //这里修改原子节点的 数据，这与往前移不一样，值得学习
     counted_node_ptr new_counter;
-
     do {
       new_counter = old_counter;
       ++new_counter.external_count;
@@ -45,10 +47,11 @@ public:
     counted_node_ptr new_node;
     new_node.ptr = new node(data);
     new_node.external_count = 1;
-    new_node.ptr->next =
-        head.load(std::memory_order_relaxed) while (!head.compare_exchange_weak(
-            new_node.ptr->next, new_node, std::memory_order_release,
-            std::memory_order_relaxed));
+    new_node.ptr->next = head.load(std::memory_order_relaxed);
+    while (!head.compare_exchange_weak(new_node.ptr->next, new_node,
+                                       std::memory_order_release,
+                                       std::memory_order_relaxed))
+      ;
   }
   std::shared_ptr<T> pop() {
     counted_node_ptr old_head = head.load(std::memory_order_relaxed);

@@ -49,7 +49,7 @@
         "cinttypes": "cpp",
         "typeindex": "cpp",
         "optional": "cpp",
-        "editor.formatOnSave": true,
-        "clang-format.executable": "/home/scding/workcode/auto-driving/tools/clang-format"
-    }
+    },
+    "editor.formatOnSave": true,
+    "clang-format.executable": "/home/scding/workcode/auto-driving/tools/clang-format"
 }
