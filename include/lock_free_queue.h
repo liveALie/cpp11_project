@@ -42,7 +42,7 @@ template <typename T> class LockFreeQueue {
       if (!new_counter.internal_count && !new_counter.external_counters) {
         delete this; // 3
       }
-    };
+    }
   };
 
 public:
@@ -80,74 +80,71 @@ public:
       }
     }
   }
-}
 
-std::unique_ptr<T>
-pop() {
-  counted_node_ptr old_head = head.load(std::memory_order_relaxed);
-  for (;;) {
-    increase_external_count(head, old_head);
-    node *const ptr = old_head.ptr;
-    if (ptr == tail.load().ptr) {
-      return std::unique_ptr<T>();
+  std::unique_ptr<T> pop() {
+    counted_node_ptr old_head = head.load(std::memory_order_relaxed);
+    for (;;) {
+      increase_external_count(head, old_head);
+      node *const ptr = old_head.ptr;
+      if (ptr == tail.load().ptr) {
+        return std::unique_ptr<T>();
+      }
+      counted_node_ptr next = ptr->next.load(); // 2
+      if (head.compare_exchange_strong(old_head, next)) {
+        T *const res = ptr->data.exchange(nullptr);
+        free_external_counter(old_head);
+        return std::unique_ptr<T>(res);
+      }
+      ptr->release_ref();
     }
-    counted_node_ptr next = ptr->next.load(); // 2
-    if (head.compare_exchange_strong(old_head, next)) {
-      T *const res = ptr->data.exchange(nullptr);
-      free_external_counter(old_head);
-      return std::unique_ptr<T>(res);
-    }
-    ptr->release_ref();
   }
-}
 
 private:
-static void increase_external_count(std::atomic<counted_node_ptr> &counter,
-                                    counted_node_ptr &old_counter) {
-  counted_node_ptr new_counter;
-  do {
-    new_counter = old_counter;
-    ++new_counter.external_count;
-  } while (!counter.compare_exchange_strong(old_counter, new_counter,
-                                            std::memory_order_acquire,
-                                            std::memory_order_relaxed));
+  static void increase_external_count(std::atomic<counted_node_ptr> &counter,
+                                      counted_node_ptr &old_counter) {
+    counted_node_ptr new_counter;
+    do {
+      new_counter = old_counter;
+      ++new_counter.external_count;
+    } while (!counter.compare_exchange_strong(old_counter, new_counter,
+                                              std::memory_order_acquire,
+                                              std::memory_order_relaxed));
 
-  old_counter.external_count = new_counter.external_count;
-}
-
-static void free_external_counter(counted_node_ptr &old_node_ptr) {
-  node *const ptr = old_node_ptr.ptr;
-  int const count_increase = old_node_ptr.external_count - 2;
-
-  node_counter old_counter = ptr->count.load(std::memory_order_relaxed);
-  node_counter new_counter;
-  do {
-    new_counter = old_counter;
-    --new_counter.external_counters;              // 1
-    new_counter.internal_count += count_increase; // 2
-  } while (!ptr->count.compare_exchange_strong(   // 3
-      old_counter, new_counter, std::memory_order_acquire,
-      std::memory_order_relaxed));
-
-  if (!new_counter.internal_count && !new_counter.external_counters) {
-    delete ptr; // 4
+    old_counter.external_count = new_counter.external_count;
   }
-}
 
-void set_new_tail(counted_node_ptr &old_tail, // 1
-                  counted_node_ptr const &new_tail) {
-  node *const current_tail_ptr = old_tail.ptr;
-  while (!tail.compare_exchange_weak(old_tail, new_tail) && // 2
-         old_tail.ptr == current_tail_ptr)
-    ;
-  if (old_tail.ptr == current_tail_ptr) // 3
-    free_external_counter(old_tail);    // 4
-  else
-    current_tail_ptr->release_ref(); // 5
-}
+  static void free_external_counter(counted_node_ptr &old_node_ptr) {
+    node *const ptr = old_node_ptr.ptr;
+    int const count_increase = old_node_ptr.external_count - 2;
+
+    node_counter old_counter = ptr->count.load(std::memory_order_relaxed);
+    node_counter new_counter;
+    do {
+      new_counter = old_counter;
+      --new_counter.external_counters;              // 1
+      new_counter.internal_count += count_increase; // 2
+    } while (!ptr->count.compare_exchange_strong(   // 3
+        old_counter, new_counter, std::memory_order_acquire,
+        std::memory_order_relaxed));
+
+    if (!new_counter.internal_count && !new_counter.external_counters) {
+      delete ptr; // 4
+    }
+  }
+
+  void set_new_tail(counted_node_ptr &old_tail, // 1
+                    counted_node_ptr const &new_tail) {
+    node *const current_tail_ptr = old_tail.ptr;
+    while (!tail.compare_exchange_weak(old_tail, new_tail) && // 2
+           old_tail.ptr == current_tail_ptr)
+      ;
+    if (old_tail.ptr == current_tail_ptr) // 3
+      free_external_counter(old_tail);    // 4
+    else
+      current_tail_ptr->release_ref(); // 5
+  }
 
 private:
-std::atomic<counted_node_ptr> head;
-std::atomic<counted_node_ptr> tail; // 1
-}
-;
+  std::atomic<counted_node_ptr> head;
+  std::atomic<counted_node_ptr> tail; // 1
+};
