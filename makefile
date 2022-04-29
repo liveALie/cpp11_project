@@ -1,7 +1,7 @@
 TAGET:=bin/c11test
 OBJ:=obj/main.o
 
-F:=-Wall -g -O3 -std=c++11 -lpthread
+F:=-Wall -g -O3 -std=c++17 -lpthread
 CC:=g++
 
 $(TAGET):$(OBJ)
